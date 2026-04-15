@@ -1,0 +1,17 @@
+{
+  "name": "germ-guardians-outbreak-defenders",
+  "version": "1.0.0",
+  "description": "Germ Guardians: Outbreak Defenders — Middle School Public Health Educational Game",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@vercel/kv": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  }
+}
