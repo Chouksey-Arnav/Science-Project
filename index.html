@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Germ Guardians: Outbreak Defenders</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{
+  --bg-deep:#080C18;
+  --bg-card:rgba(15,23,42,0.85);
+  --bg-card-solid:#0F1729;
+  --cyan:#06B6D4;
+  --cyan-dark:#0891B2;
+  --yellow:#FACC15;
+  --coral:#F97316;
+  --lime:#84CC16;
+  --red:#EF4444;
+  --purple:#A855F7;
+  --green:#10B981;
+  --white:#F8FAFC;
+  --gray:#94A3B8;
+  --navy:#1E3A5F;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;overflow-x:hidden}
+body{
+  background:var(--bg-deep);
+  font-family:'Nunito',sans-serif;
+  color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 15% 15%,rgba(6,182,212,0.12) 0%,transparent 45%),
+    radial-gradient(ellipse at 85% 85%,rgba(168,85,247,0.12) 0%,transparent 45%),
+    radial-gradient(ellipse at 85% 15%,rgba(249,115,22,0.08) 0%,transparent 40%),
+    radial-gradient(ellipse at 15% 85%,rgba(132,204,22,0.08) 0%,transparent 40%);
+  background-attachment:fixed;
+}
+.ff{font-family:'Fredoka One',cursive}
+.mono{font-family:'Space Mono',monospace}
+
+/* ─── GRID DOTS BACKGROUND ─── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:radial-gradient(rgba(6,182,212,0.15) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;z-index:0;
+}
+#app{position:relative;z-index:1;min-height:100vh}
+
+/* ─── GLASS CARD ─── */
+.glass{
+  background:var(--bg-card);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:24px;
+}
+.glass-bright{
+  background:rgba(6,182,212,0.06);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(6,182,212,0.25);
+  border-radius:20px;
+}
+
+/* ─── BUTTONS ─── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 28px;border-radius:14px;font-weight:800;font-size:1rem;
+  cursor:pointer;border:none;transition:all 0.2s;
+  font-family:'Nunito',sans-serif;letter-spacing:0.01em;
+}
+.btn:active{transform:scale(0.96)}
+.btn-cyan{background:var(--cyan);color:#fff;box-shadow:0 0 20px rgba(6,182,212,0.4)}
+.btn-cyan:hover{background:var(--cyan-dark);box-shadow:0 0 35px rgba(6,182,212,0.6);transform:translateY(-2px)}
+.btn-yellow{background:var(--yellow);color:#1a0a00;box-shadow:0 0 20px rgba(250,204,21,0.35)}
+.btn-yellow:hover{box-shadow:0 0 35px rgba(250,204,21,0.55);transform:translateY(-2px)}
+.btn-lime{background:var(--lime);color:#1a2e00;box-shadow:0 0 20px rgba(132,204,22,0.35)}
+.btn-lime:hover{box-shadow:0 0 35px rgba(132,204,22,0.55);transform:translateY(-2px)}
+.btn-coral{background:var(--coral);color:#fff;box-shadow:0 0 20px rgba(249,115,22,0.35)}
+.btn-coral:hover{box-shadow:0 0 35px rgba(249,115,22,0.55);transform:translateY(-2px)}
+.btn-outline{background:transparent;color:var(--cyan);border:2px solid var(--cyan)}
+.btn-outline:hover{background:rgba(6,182,212,0.1)}
+.btn-ghost{background:rgba(255,255,255,0.06);color:var(--white);border:1px solid rgba(255,255,255,0.12)}
+.btn-ghost:hover{background:rgba(255,255,255,0.12)}
+.btn-lg{padding:18px 40px;font-size:1.2rem;border-radius:18px}
+.btn-sm{padding:10px 20px;font-size:0.875rem;border-radius:10px}
+
+/* ─── OPTION BUTTONS ─── */
+.opt{
+  width:100%;text-align:left;padding:16px 20px;border-radius:14px;
+  border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);
+  color:var(--white);font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;
+  cursor:pointer;transition:all 0.2s;margin-bottom:10px;
+}
+.opt:hover{border-color:var(--cyan);background:rgba(6,182,212,0.1);transform:translateX(4px)}
+.opt.selected{border-color:var(--cyan);background:rgba(6,182,212,0.15)}
+.opt.correct{border-color:var(--lime);background:rgba(132,204,22,0.15);color:var(--lime)}
+.opt.wrong{border-color:var(--red);background:rgba(239,68,68,0.15);color:var(--red)}
+.opt.partial-correct{border-color:var(--lime);background:rgba(132,204,22,0.12)}
+.opt.partial-wrong{border-color:var(--red);background:rgba(239,68,68,0.12)}
+.opt:disabled{cursor:not-allowed}
+
+/* ─── OUTBREAK METER ─── */
+.meter-bar{height:20px;border-radius:10px;background:rgba(255,255,255,0.1);overflow:hidden;position:relative}
+.meter-fill{
+  height:100%;border-radius:10px;transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  background:linear-gradient(90deg,#10B981 0%,#FACC15 50%,#EF4444 100%);
+  position:relative;
+}
+.meter-fill::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(0deg,transparent 50%,rgba(255,255,255,0.2) 100%);
+}
+
+/* ─── TIMER ─── */
+.timer-ring{
+  width:64px;height:64px;border-radius:50%;
+  background:conic-gradient(var(--cyan) var(--pct,100%),rgba(255,255,255,0.1) 0%);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.timer-ring::before{
+  content:'';position:absolute;inset:6px;border-radius:50%;background:var(--bg-deep);
+}
+.timer-num{position:relative;z-index:1;font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--cyan)}
+
+/* ─── ANIMATIONS ─── */
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(-3deg)}
+  50%{transform:translateY(-18px) rotate(3deg)}
+}
+@keyframes floatB{
+  0%,100%{transform:translateY(0) rotate(2deg)}
+  50%{transform:translateY(-14px) rotate(-4deg)}
+}
+@keyframes spin-slow{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes pulse-glow{
+  0%,100%{filter:drop-shadow(0 0 8px currentColor)}
+  50%{filter:drop-shadow(0 0 24px currentColor) drop-shadow(0 0 48px currentColor)}
+}
+@keyframes pop-in{
+  0%{transform:scale(0) rotate(-15deg);opacity:0}
+  75%{transform:scale(1.08) rotate(3deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+@keyframes slide-up{
+  from{transform:translateY(30px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+@keyframes slide-in-right{
+  from{transform:translateX(60px);opacity:0}
+  to{transform:translateX(0);opacity:1}
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-10px)}
+  40%{transform:translateX(10px)}
+  60%{transform:translateX(-6px)}
+  80%{transform:translateX(6px)}
+}
+@keyframes confetti-fall{
+  0%{transform:translateY(-20px) rotate(0deg) scale(1);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg) scale(0.5);opacity:0}
+}
+@keyframes star-burst{
+  0%{transform:scale(0);opacity:1}
+  100%{transform:scale(3);opacity:0}
+}
+@keyframes progress-fill{
+  from{width:0%}
+}
+@keyframes ticker{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+@keyframes glow-border{
+  0%,100%{border-color:rgba(6,182,212,0.3)}
+  50%{border-color:rgba(6,182,212,0.8);box-shadow:0 0 20px rgba(6,182,212,0.3)}
+}
+
+.float-a{animation:float 3.2s ease-in-out infinite}
+.float-b{animation:floatB 2.8s ease-in-out infinite 0.4s}
+.float-c{animation:float 3.6s ease-in-out infinite 0.8s}
+.float-d{animation:floatB 3s ease-in-out infinite 1.2s}
+.pop-in{animation:pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.slide-up{animation:slide-up 0.4s ease-out forwards}
+.slide-in-r{animation:slide-in-right 0.4s ease-out forwards}
+.glow-border-anim{animation:glow-border 2s ease-in-out infinite}
+
+/* ─── LEADERBOARD ─── */
+.lb-row{
+  display:grid;grid-template-columns:48px 1fr auto auto;
+  align-items:center;gap:12px;padding:14px 20px;border-radius:14px;
+  border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);
+  margin-bottom:8px;transition:all 0.2s;
+}
+.lb-row:hover{background:rgba(6,182,212,0.06);border-color:rgba(6,182,212,0.2)}
+.lb-row.gold{background:rgba(250,204,21,0.08);border-color:rgba(250,204,21,0.3)}
+.lb-row.silver{background:rgba(148,163,184,0.08);border-color:rgba(148,163,184,0.3)}
+.lb-row.bronze{background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.3)}
+
+/* ─── SELECT-ALL CHECKBOXES ─── */
+.check-opt{
+  display:flex;align-items:center;gap:14px;padding:14px 18px;
+  border-radius:12px;border:2px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.2s;
+  margin-bottom:8px;font-weight:700;font-size:0.95rem;
+}
+.check-opt:hover{border-color:var(--cyan);background:rgba(6,182,212,0.08)}
+.check-opt.picked{border-color:var(--cyan);background:rgba(6,182,212,0.12)}
+.check-opt.reveal-good{border-color:var(--lime);background:rgba(132,204,22,0.12);color:var(--lime)}
+.check-opt.reveal-bad{border-color:var(--red);background:rgba(239,68,68,0.12);color:var(--red)}
+.check-box{
+  width:24px;height:24px;border-radius:6px;border:2px solid rgba(255,255,255,0.3);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;
+}
+.check-opt.picked .check-box{background:var(--cyan);border-color:var(--cyan)}
+.check-opt.reveal-good .check-box{background:var(--lime);border-color:var(--lime)}
+.check-opt.reveal-bad .check-box{background:var(--red);border-color:var(--red)}
+
+/* ─── CONFETTI CANVAS ─── */
+#confetti-canvas{
+  position:fixed;inset:0;pointer-events:none;z-index:9999;
+}
+
+/* ─── TICKER ─── */
+.ticker-wrap{overflow:hidden;white-space:nowrap;background:rgba(6,182,212,0.08);border-top:1px solid rgba(6,182,212,0.2);border-bottom:1px solid rgba(6,182,212,0.2);padding:8px 0}
+.ticker-inner{display:inline-flex;animation:ticker 30s linear infinite}
+
+/* ─── CERTIFICATE ─── */
+.certificate{
+  border:3px solid var(--yellow);
+  background:linear-gradient(135deg,rgba(250,204,21,0.05),rgba(6,182,212,0.05));
+  border-radius:20px;padding:32px;position:relative;overflow:hidden;
+}
+.certificate::before{
+  content:'★ ★ ★';position:absolute;top:12px;right:16px;
+  color:rgba(250,204,21,0.2);font-size:1.5rem;letter-spacing:8px;
+}
+
+/* ─── INPUT ─── */
+.inp{
+  width:100%;padding:14px 18px;border-radius:12px;
+  background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.12);
+  color:var(--white);font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;
+  outline:none;transition:all 0.2s;
+}
+.inp:focus{border-color:var(--cyan);background:rgba(6,182,212,0.08)}
+.inp::placeholder{color:var(--gray)}
+
+/* ─── BADGE ─── */
+.badge{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 14px;
+  border-radius:99px;font-size:0.8rem;font-weight:800;
+}
+.badge-cyan{background:rgba(6,182,212,0.2);color:var(--cyan);border:1px solid rgba(6,182,212,0.4)}
+.badge-yellow{background:rgba(250,204,21,0.2);color:var(--yellow);border:1px solid rgba(250,204,21,0.4)}
+.badge-lime{background:rgba(132,204,22,0.2);color:var(--lime);border:1px solid rgba(132,204,22,0.4)}
+.badge-red{background:rgba(239,68,68,0.2);color:var(--red);border:1px solid rgba(239,68,68,0.4)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:640px){
+  .btn-lg{padding:14px 24px;font-size:1rem}
+  .ff.text-6xl{font-size:2.5rem}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div id="app"></div>
+
+<script>
+// ============================================================
+//  GERM GUARDIANS: OUTBREAK DEFENDERS
+//  Complete Educational Game | Middle School Public Health
+// ============================================================
+
+// ─────────────────────────────────────────
+//  SVG CHARACTERS
+// ─────────────────────────────────────────
+const SVG = {
+  bacteria: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="glow-b"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <!-- Flagella -->
+    <path d="M18,65 Q5,52 12,38 Q19,24 10,12" stroke="#059669" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M22,72 Q8,65 6,50 Q4,35 -5,28" stroke="#059669" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M102,65 Q115,52 108,38 Q101,24 110,12" stroke="#059669" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M98,72 Q112,65 114,50 Q116,35 125,28" stroke="#059669" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Body -->
+    <ellipse cx="60" cy="67" rx="38" ry="34" fill="#10B981" filter="url(#glow-b)"/>
+    <ellipse cx="60" cy="67" rx="38" ry="34" fill="url(#bg)"/>
+    <ellipse cx="60" cy="67" rx="38" ry="34" fill="#10B981"/>
+    <ellipse cx="48" cy="62" rx="5" ry="6" fill="rgba(255,255,255,0.15)"/>
+    <!-- Eyes -->
+    <circle cx="48" cy="62" r="10" fill="white"/>
+    <circle cx="72" cy="62" r="10" fill="white"/>
+    <circle cx="50" cy="63" r="6" fill="#065F46"/>
+    <circle cx="74" cy="63" r="6" fill="#065F46"/>
+    <circle cx="52" cy="61" r="2.5" fill="white"/>
+    <circle cx="76" cy="61" r="2.5" fill="white"/>
+    <!-- Smile -->
+    <path d="M48,78 Q60,90 72,78" stroke="#047857" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <!-- Cheeks -->
+    <ellipse cx="38" cy="73" rx="7" ry="4" fill="rgba(5,150,105,0.4)"/>
+    <ellipse cx="82" cy="73" rx="7" ry="4" fill="rgba(5,150,105,0.4)"/>
+  </svg>`,
+
+  virus: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="glow-v"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <!-- Spikes -->
+    <g stroke="#DC2626" stroke-width="5" stroke-linecap="round">
+      <line x1="60" y1="60" x2="60" y2="16"/>
+      <line x1="60" y1="60" x2="60" y2="104"/>
+      <line x1="60" y1="60" x2="16" y2="60"/>
+      <line x1="60" y1="60" x2="104" y2="60"/>
+      <line x1="60" y1="60" x2="29" y2="29"/>
+      <line x1="60" y1="60" x2="91" y2="29"/>
+      <line x1="60" y1="60" x2="29" y2="91"/>
+      <line x1="60" y1="60" x2="91" y2="91"/>
+    </g>
+    <!-- Spike tips -->
+    <circle cx="60" cy="14" r="5" fill="#FCA5A5"/>
+    <circle cx="60" cy="106" r="5" fill="#FCA5A5"/>
+    <circle cx="14" cy="60" r="5" fill="#FCA5A5"/>
+    <circle cx="106" cy="60" r="5" fill="#FCA5A5"/>
+    <circle cx="27" cy="27" r="4" fill="#FCA5A5"/>
+    <circle cx="93" cy="27" r="4" fill="#FCA5A5"/>
+    <circle cx="27" cy="93" r="4" fill="#FCA5A5"/>
+    <circle cx="93" cy="93" r="4" fill="#FCA5A5"/>
+    <!-- Body -->
+    <circle cx="60" cy="60" r="30" fill="#EF4444" filter="url(#glow-v)"/>
+    <circle cx="60" cy="60" r="30" fill="#EF4444"/>
+    <ellipse cx="50" cy="52" rx="6" ry="7" fill="rgba(255,255,255,0.12)"/>
+    <!-- Angry eyes -->
+    <circle cx="50" cy="56" r="9" fill="white"/>
+    <circle cx="70" cy="56" r="9" fill="white"/>
+    <circle cx="51" cy="57" r="5" fill="#7F1D1D"/>
+    <circle cx="71" cy="57" r="5" fill="#7F1D1D"/>
+    <circle cx="53" cy="55" r="2" fill="white"/>
+    <circle cx="73" cy="55" r="2" fill="white"/>
+    <!-- Angry brows -->
+    <path d="M42,47 L58,51" stroke="#7F1D1D" stroke-width="3" stroke-linecap="round"/>
+    <path d="M78,47 L62,51" stroke="#7F1D1D" stroke-width="3" stroke-linecap="round"/>
+    <!-- Frown -->
+    <path d="M48,72 Q60,65 72,72" stroke="#7F1D1D" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`,
+
+  fungi: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="glow-f"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <!-- Spores floating -->
+    <circle cx="25" cy="22" r="5" fill="#C084FC" opacity="0.7"/>
+    <circle cx="95" cy="18" r="4" fill="#C084FC" opacity="0.6"/>
+    <circle cx="100" cy="45" r="3" fill="#E879F9" opacity="0.5"/>
+    <circle cx="18" cy="50" r="3" fill="#C084FC" opacity="0.5"/>
+    <!-- Fuzzy puff body -->
+    <circle cx="40" cy="65" r="28" fill="#9333EA" filter="url(#glow-f)"/>
+    <circle cx="80" cy="65" r="28" fill="#9333EA" filter="url(#glow-f)"/>
+    <circle cx="60" cy="50" r="28" fill="#A855F7" filter="url(#glow-f)"/>
+    <circle cx="60" cy="72" r="26" fill="#A855F7"/>
+    <!-- Fuzzy bumps -->
+    <circle cx="35" cy="55" r="12" fill="#9333EA"/>
+    <circle cx="85" cy="55" r="12" fill="#9333EA"/>
+    <circle cx="60" cy="45" r="14" fill="#B060FF"/>
+    <circle cx="45" cy="78" r="10" fill="#9333EA"/>
+    <circle cx="75" cy="78" r="10" fill="#9333EA"/>
+    <!-- Eyes -->
+    <circle cx="50" cy="65" r="9" fill="white"/>
+    <circle cx="70" cy="65" r="9" fill="white"/>
+    <circle cx="51" cy="66" r="5" fill="#4C1D95"/>
+    <circle cx="71" cy="66" r="5" fill="#4C1D95"/>
+    <circle cx="53" cy="64" r="2" fill="white"/>
+    <circle cx="73" cy="64" r="2" fill="white"/>
+    <!-- Smile -->
+    <path d="M50,78 Q60,86 70,78" stroke="#4C1D95" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Spore dots on body -->
+    <circle cx="42" cy="88" r="3" fill="rgba(139,92,246,0.6)"/>
+    <circle cx="78" cy="88" r="3" fill="rgba(139,92,246,0.6)"/>
+    <circle cx="30" cy="72" r="2.5" fill="rgba(139,92,246,0.5)"/>
+  </svg>`,
+
+  parasite: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="glow-p"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <!-- Wings -->
+    <ellipse cx="38" cy="48" rx="24" ry="11" fill="rgba(251,191,36,0.35)" transform="rotate(-25,38,48)" filter="url(#glow-p)"/>
+    <ellipse cx="82" cy="48" rx="24" ry="11" fill="rgba(251,191,36,0.35)" transform="rotate(25,82,48)"/>
+    <ellipse cx="35" cy="55" rx="18" ry="7" fill="rgba(251,191,36,0.25)" transform="rotate(-15,35,55)"/>
+    <ellipse cx="85" cy="55" rx="18" ry="7" fill="rgba(251,191,36,0.25)" transform="rotate(15,85,55)"/>
+    <!-- Body segments -->
+    <ellipse cx="60" cy="85" rx="9" ry="12" fill="#C2410C"/>
+    <ellipse cx="60" cy="72" rx="10" ry="11" fill="#EA580C"/>
+    <ellipse cx="60" cy="60" rx="11" ry="10" fill="#F97316" filter="url(#glow-p)"/>
+    <!-- Head -->
+    <circle cx="60" cy="44" r="16" fill="#F97316"/>
+    <!-- Antennae -->
+    <line x1="54" y1="30" x2="46" y2="14" stroke="#C2410C" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="66" y1="30" x2="74" y2="14" stroke="#C2410C" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="45" cy="13" r="3.5" fill="#FCD34D"/>
+    <circle cx="75" cy="13" r="3.5" fill="#FCD34D"/>
+    <!-- Proboscis -->
+    <line x1="60" y1="57" x2="60" y2="98" stroke="#9A3412" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="60" cy="100" r="3" fill="#FCD34D"/>
+    <!-- Eyes -->
+    <circle cx="52" cy="43" r="7" fill="white"/>
+    <circle cx="68" cy="43" r="7" fill="white"/>
+    <circle cx="53" cy="44" r="4" fill="#431407"/>
+    <circle cx="69" cy="44" r="4" fill="#431407"/>
+    <circle cx="54" cy="43" r="1.5" fill="white"/>
+    <circle cx="70" cy="43" r="1.5" fill="white"/>
+    <!-- Legs -->
+    <line x1="51" y1="72" x2="28" y2="82" stroke="#C2410C" stroke-width="2" stroke-linecap="round"/>
+    <line x1="51" y1="80" x2="25" y2="92" stroke="#C2410C" stroke-width="2" stroke-linecap="round"/>
+    <line x1="69" y1="72" x2="92" y2="82" stroke="#C2410C" stroke-width="2" stroke-linecap="round"/>
+    <line x1="69" y1="80" x2="95" y2="92" stroke="#C2410C" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+
+  shield: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <path d="M40 8 L68 20 L68 44 Q68 62 40 72 Q12 62 12 44 L12 20 Z" fill="url(#sh-grad)" stroke="#06B6D4" stroke-width="2"/>
+    <defs><linearGradient id="sh-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0891B2"/><stop offset="100%" stop-color="#0E7490"/></linearGradient></defs>
+    <path d="M28 40 L36 48 L52 32" stroke="#FACC15" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`
+};
+
+// ─────────────────────────────────────────
+//  GAME DATA
+// ─────────────────────────────────────────
+const LEVELS = [
+  {
+    id: 'bacteria', name: 'Bacteria', color: '#10B981', colorDark: '#065F46',
+    colorBg: 'rgba(16,185,129,0.08)', colorBorder: 'rgba(16,185,129,0.3)',
+    emoji: '🦠', svgKey: 'bacteria', floatClass: 'float-a',
+    scenario: `🚨 OUTBREAK ALERT! A wave of sore throats and fevers is sweeping through Maplewood Middle School! Students are reporting swollen tonsils and can barely swallow. The school nurse suspects <strong>Streptococcus pyogenes</strong> is the culprit — a sinister microbe causing STREP THROAT. Can your team stop the outbreak?`,
+    type: 'Bacteria',
+    typeDesc: 'Single-celled living organisms that reproduce on their own and can release toxins.',
+    example: 'Streptococcus pyogenes → Strep Throat (sore throat, fever, swollen tonsils)',
+    prevention: ['Wash hands with soap for 20 seconds','Cover coughs/sneezes with elbow or tissue',"Don't share drinks/utensils",'Stay home when sick','Clean surfaces','Improve ventilation'],
+    treatment: 'Antibiotics (e.g., penicillin or amoxicillin — finish the FULL course!)',
+    huddlePrompt: `🤝 <strong>Team Huddle Time!</strong> Before you answer, discuss together:<br>• Is this organism alive? Does it have cells?<br>• How does strep spread between students?<br>• What prevention steps should the school take?<br>• What medicine treats bacteria?`,
+    challenges: [
+      {
+        type: 'mc', points: 150,
+        q: '🔬 What TYPE of pathogen is causing these strep throat cases?',
+        opts: ['Virus — tiny protein shell with DNA/RNA inside','Fungi — reproduces through spores','Bacteria — single-celled living organism ✓','Parasite — steals nutrients from a host'],
+        correct: 2,
+        explanation: '✅ BACTERIA are single-celled LIVING organisms that reproduce on their own and release toxins! Streptococcus pyogenes is the bacterium causing strep throat. They\'re alive and can be killed with antibiotics!'
+      },
+      {
+        type: 'sa', points: 200,
+        q: '🛡️ Select ALL correct prevention methods for strep throat:',
+        opts: [
+          {text:'Wash hands with soap for 20 seconds',correct:true},
+          {text:'Take antibiotics as a daily preventative',correct:false},
+          {text:'Cover coughs/sneezes with your elbow or tissue',correct:true},
+          {text:"Don't share drinks, food, or utensils",correct:true},
+          {text:'Stay home when you are sick',correct:true},
+          {text:'Use insect repellent to block bacteria',correct:false},
+        ],
+        explanation: '✅ Hand washing (20 sec!), covering coughs, not sharing items, and staying home are your best weapons! Antibiotics are treatment — not prevention. Insect repellent stops parasites, not bacteria!'
+      },
+      {
+        type: 'mc', points: 150,
+        q: '💊 What is the CORRECT treatment for strep throat?',
+        opts: ['Rest and fluids only — it will clear up naturally','Antifungal cream (like clotrimazole)','Antibiotics (penicillin or amoxicillin) — FINISH the full course!','Antivirals — must start within 48 hours'],
+        correct: 2,
+        explanation: '✅ Antibiotics like penicillin or amoxicillin destroy bacteria! CRITICAL: Always finish the FULL course even if you feel better — stopping early lets surviving bacteria become antibiotic-resistant!'
+      }
+    ]
+  },
+  {
+    id: 'virus', name: 'Virus', color: '#EF4444', colorDark: '#7F1D1D',
+    colorBg: 'rgba(239,68,68,0.08)', colorBorder: 'rgba(239,68,68,0.3)',
+    emoji: '🔴', svgKey: 'virus', floatClass: 'float-b',
+    scenario: `⚡ VIRAL OUTBREAK! The Influenza virus is spreading like wildfire across Riverside! Hundreds of students are home with <strong>fever, body aches, cough, and extreme fatigue</strong>. Unlike bacteria, this invader hijacks your own cells and forces them to make thousands of virus copies. The town is counting on your team!`,
+    type: 'Virus',
+    typeDesc: 'Tiny packets of genetic material (DNA or RNA) inside a protein shell — NOT living cells. They hijack host cells to make copies.',
+    example: 'Influenza Virus → Seasonal Flu (fever, body aches, cough, fatigue)',
+    prevention: ['Annual flu vaccine','Wash hands thoroughly','Avoid close contact with sick people','Cover coughs/sneezes','Disinfect surfaces','Stay home when sick'],
+    treatment: 'Supportive care (rest, fluids, fever reducers); antivirals if started early. NO antibiotics — they do NOT work on viruses!',
+    huddlePrompt: `🤝 <strong>Team Huddle Time!</strong> Discuss together:<br>• How is a virus different from bacteria? Does it have cells?<br>• Why can't antibiotics destroy a virus?<br>• What's special about the flu vaccine?<br>• What CAN we do to treat viral infections?`,
+    challenges: [
+      {
+        type: 'mc', points: 150,
+        q: '🔬 Influenza is invading! What TYPE of pathogen is it?',
+        opts: ['Bacteria — a living single-celled organism','Virus — NOT a living cell; hijacks host cells to copy itself ✓','Fungi — plant-like, reproduces via spores','Parasite — lives inside a host and steals nutrients'],
+        correct: 1,
+        explanation: '✅ Viruses are NOT alive! They\'re tiny packets of genetic material (DNA or RNA) inside a protein shell. They can\'t reproduce on their own — they invade YOUR cells and hijack them to make virus copies!'
+      },
+      {
+        type: 'sa', points: 200,
+        q: '🛡️ Which prevention methods ACTUALLY work against influenza?',
+        opts: [
+          {text:'Get the annual flu vaccine 💉',correct:true},
+          {text:'Take antibiotics right away — they kill everything!',correct:false},
+          {text:'Wash your hands thoroughly and often',correct:true},
+          {text:'Avoid close contact with sick people',correct:true},
+          {text:'Cover coughs and sneezes with your elbow',correct:true},
+          {text:'Stay home when you are sick',correct:true},
+        ],
+        explanation: '⚠️ TRAP ALERT! Antibiotics do NOT work on viruses — EVER! Antibiotics only target bacteria. The annual vaccine, hand washing, social distancing, and staying home are your real tools against flu!'
+      },
+      {
+        type: 'mc', points: 150,
+        q: '⚕️ Your teammate shouts "Give everyone antibiotics!" — what\'s your team\'s response?',
+        opts: [
+          'Great idea! Antibiotics cure all infections.',
+          'Antibiotics ONLY work on bacteria — NOT viruses! Use rest, fluids & antivirals if caught early. ✓',
+          'Antibiotics work if you take a double dose.',
+          'Antibiotics are fine for viruses in severe cases.'
+        ],
+        correct: 1,
+        explanation: '🚨 CRITICAL FACT: Antibiotics do NOT work on viruses, fungi, or parasites — ONLY bacteria! For flu: rest, fluids, fever reducers. Antivirals (like Tamiflu) can help if started within 48 hours of symptoms!'
+      }
+    ]
+  },
+  {
+    id: 'fungi', name: 'Fungi', color: '#A855F7', colorDark: '#4C1D95',
+    colorBg: 'rgba(168,85,247,0.08)', colorBorder: 'rgba(168,85,247,0.3)',
+    emoji: '🍄', svgKey: 'fungi', floatClass: 'float-c',
+    scenario: `🍄 FUNGAL ALERT! Half the school soccer team is showing up with <strong>itchy, ring-shaped rashes</strong> on their skin and feet! The warm, damp locker room is the perfect breeding ground for <strong>Trichophyton</strong> — a fungal species that reproduces via spores and causes ringworm and athlete's foot. Time to decontaminate!`,
+    type: 'Fungi',
+    typeDesc: 'Plant-like organisms (yeasts or molds) that reproduce via spores in warm, damp places.',
+    example: "Trichophyton → Ringworm / Athlete's Foot (itchy, ring-shaped rash)",
+    prevention: ['Keep skin clean and dry',"Don't share towels/combs/clothes",'Wear shoes in public showers/locker rooms','Wash hands after touching animals or soil'],
+    treatment: 'Antifungal creams (e.g., clotrimazole) or pills for severe cases.',
+    huddlePrompt: `🤝 <strong>Team Huddle Time!</strong> Discuss together:<br>• How do fungi reproduce? (Hint: think spores!)<br>• Why does the locker room make fungi worse?<br>• What everyday items spread fungal infections?<br>• What medicine class treats fungi specifically?`,
+    challenges: [
+      {
+        type: 'mc', points: 150,
+        q: "🔬 Trichophyton is causing itchy ring-shaped rashes. What type of organism is it?",
+        opts: ['Bacteria — single-celled, reproduces on its own','Virus — hijacks host cells to copy itself','Fungi — plant-like, reproduces via spores in damp places ✓','Parasite — lives inside a host, spread by mosquitoes'],
+        correct: 2,
+        explanation: '✅ Fungi are plant-like organisms that reproduce via SPORES! Yeasts and molds thrive in warm, moist environments — exactly like locker rooms and gym showers. They\'re NOT bacteria or viruses!'
+      },
+      {
+        type: 'sa', points: 200,
+        q: '🛡️ Select ALL correct prevention steps for fungal infections:',
+        opts: [
+          {text:'Keep your skin clean and dry',correct:true},
+          {text:"Don't share towels, combs, or clothes with others",correct:true},
+          {text:'Wear shoes or sandals in public showers and locker rooms',correct:true},
+          {text:'Take a course of antibiotics as a precaution',correct:false},
+          {text:'Wash hands after touching animals or soil',correct:true},
+          {text:'Use insect repellent to block fungal spores',correct:false},
+        ],
+        explanation: '✅ Fungi love warmth and moisture! Stay dry, wear shoes in shared spaces, and never share personal items. Remember: antibiotics and insect repellent do NOTHING against fungi!'
+      },
+      {
+        type: 'mc', points: 150,
+        q: '💊 A soccer player has ringworm. What is the CORRECT treatment?',
+        opts: [
+          'Antibiotics (penicillin or amoxicillin)',
+          'Antifungal creams like clotrimazole, or antifungal pills for severe cases ✓',
+          'Antiviral medicine — start within 48 hours',
+          'Rest and fluids — it clears up on its own'
+        ],
+        correct: 1,
+        explanation: '✅ Ringworm is fungal — treat it with ANTIFUNGAL medicine (like clotrimazole cream)! Antibiotics kill bacteria only. Antivirals kill viruses only. You need the RIGHT medicine for the RIGHT pathogen!'
+      }
+    ]
+  },
+  {
+    id: 'parasite', name: 'Parasite', color: '#F97316', colorDark: '#9A3412',
+    colorBg: 'rgba(249,115,22,0.08)', colorBorder: 'rgba(249,115,22,0.3)',
+    emoji: '🦟', svgKey: 'parasite', floatClass: 'float-d',
+    scenario: `🦟 EMERGENCY! Students just returned from a tropical field trip and several are collapsing with <strong>fever, chills, and extreme fatigue</strong>! Infected Anopheles mosquitoes in the area were carrying <strong>Plasmodium</strong> — a protozoan PARASITE that causes malaria by living inside red blood cells and stealing nutrients. Act fast!`,
+    type: 'Parasite',
+    typeDesc: 'Organisms that live on or inside a host and steal nutrients.',
+    example: 'Plasmodium (protozoan) → Malaria (fever, chills, fatigue — spread by mosquitoes)',
+    prevention: ['Use insect repellent and bed nets','Drink clean/filtered water','Wash produce before eating','Cook meat thoroughly'],
+    treatment: 'Specific antiparasitic medicines (e.g., artemisinin-based combination therapy for malaria).',
+    huddlePrompt: `🤝 <strong>Team Huddle Time!</strong> Final discussion:<br>• How are parasites different from bacteria, viruses & fungi?<br>• How does malaria spread — is it person-to-person?<br>• What everyday items can carry other parasites?<br>• Why do you need a SPECIFIC antiparasitic medicine?`,
+    challenges: [
+      {
+        type: 'mc', points: 150,
+        q: '🔬 Plasmodium spreads via mosquito bites and causes malaria. What type is it?',
+        opts: ['Bacteria — living cells that release toxins','Virus — tiny packets of genetic material inside protein shell','Fungi — plant-like organisms that spread via spores','Parasite — lives inside a host and steals nutrients ✓'],
+        correct: 3,
+        explanation: '✅ Parasites are organisms that live ON or INSIDE a host and steal nutrients! Plasmodium is a protozoan parasite transmitted by Anopheles mosquito bites. It invades red blood cells and destroys them!'
+      },
+      {
+        type: 'sa', points: 200,
+        q: '🛡️ Which methods prevent parasitic diseases like malaria?',
+        opts: [
+          {text:'Use insect repellent and sleep under bed nets',correct:true},
+          {text:'Drink only clean, filtered, or bottled water',correct:true},
+          {text:'Wash fruits and vegetables before eating',correct:true},
+          {text:'Cook all meat thoroughly',correct:true},
+          {text:'Take antibiotics before traveling to tropical areas',correct:false},
+          {text:'Get the annual flu vaccine',correct:false},
+        ],
+        explanation: '✅ Blocking exposure is key! Repellent and bed nets stop mosquito bites. Clean water, washed produce, and cooked meat stop food/water-borne parasites. Antibiotics and flu vaccines do NOTHING against parasites!'
+      },
+      {
+        type: 'mc', points: 150,
+        q: '💊 What is the CORRECT treatment for malaria caused by Plasmodium?',
+        opts: [
+          'Antibiotics — finish the full course',
+          'Antifungal cream or pills',
+          'Antiparasitic medicines (artemisinin-based combination therapy for malaria) ✓',
+          'Supportive care only — rest, fluids, and fever reducers'
+        ],
+        correct: 2,
+        explanation: '✅ Malaria requires SPECIFIC antiparasitic medicine! Artemisinin-based combination therapy (ACT) is the gold standard treatment. Antibiotics, antivirals, and antifungals all target DIFFERENT organisms — you need the exact right medicine!'
+      }
+    ]
+  }
+];
+
+const BOSS_QS = [
+  {q:'Which pathogen is a LIVING, single-celled organism that responds to antibiotics?',opts:['Virus','Parasite','Bacteria','Fungi'],correct:2,fact:'Bacteria are the ONLY pathogens treated with antibiotics! They\'re living cells that reproduce on their own.'},
+  {q:'Viruses reproduce by doing what?',opts:['Splitting in two like bacteria','Releasing spores like fungi','Hijacking host cells to make copies','Biting hosts like mosquitoes'],correct:2,fact:'Viruses are NOT alive — they hijack YOUR cells and force them to produce thousands of virus copies!'},
+  {q:'A student has ringworm from the gym locker room. Which medicine works?',opts:['Antibiotics','Antivirals','Antiparasitic drugs','Antifungal cream (like clotrimazole)'],correct:3,fact:'Ringworm is a FUNGAL infection — only antifungal medicine works! Antibiotics only target bacteria.'},
+  {q:'NEVER give antibiotics for which types of infection? (Pick the best answer)',opts:['Only viruses','Only fungi','Only parasites','Viruses, fungi, AND parasites — antibiotics ONLY work on bacteria'],correct:3,fact:'CRITICAL: Antibiotics work on BACTERIA ONLY! They do nothing against viruses, fungi, or parasites.'},
+  {q:'Malaria is spread by which carrier?',opts:['Contaminated food and water','Infected Anopheles mosquito bites','Person-to-person coughing','Shared towels and combs'],correct:1,fact:'Malaria (caused by Plasmodium parasite) is transmitted through the bites of infected Anopheles mosquitoes!'},
+  {q:'Which prevention step works against ALL four types of pathogens?',opts:['Annual flu vaccine','Taking antibiotics early','Thorough hand washing','Using insect repellent'],correct:2,fact:'Hand washing is the #1 universal prevention for ALL infectious diseases — bacteria, viruses, fungi, and parasites!'},
+  {q:'A student has flu symptoms. Which statement is TRUE?',opts:['Antibiotics will cure the flu fast','The flu is bacterial — treat with penicillin','Flu is viral — antivirals + rest/fluids; NO antibiotics!','The flu vaccine cannot prevent infection'],correct:2,fact:'Influenza is a VIRUS — antibiotics won\'t touch it! Use rest, fluids, fever reducers, and antivirals if caught early.'},
+  {q:'Fungi reproduce best in which environment?',opts:['Cold, dry, well-ventilated spaces','Warm, damp places like locker rooms','Inside blood cells of a host','Frozen foods and refrigerators'],correct:1,fact:'Fungi thrive in WARM, DAMP places and spread through spores. Locker rooms, showers, and gyms are prime breeding grounds!'}
+];
+
+// ─────────────────────────────────────────
+//  GAME STATE
+// ─────────────────────────────────────────
+let G = {
+  players: [], teamName: '', currentPlayer: 0,
+  scores: {}, totalScore: 0,
+  levelIdx: 0, challengeIdx: 0,
+  outbreakMeter: 45,
+  soundOn: true,
+  phase: 'welcome',
+  levelStartTime: 0, globalStartTime: 0,
+  selectedOpts: [], pickedOpts: [],
+  bossIdx: 0, bossScore: 0,
+  bossTimer: 15, bossTimerHandle: null,
+  huddleTimer: 30, huddleHandle: null,
+  levelScores: [0,0,0,0], bossLevelScore: 0,
+  speedBonus: 0, challengeStartTime: 0,
+  confirmed: false,
+};
+
+// ─────────────────────────────────────────
+//  AUDIO
+// ─────────────────────────────────────────
+let AC = null;
+function getAC(){ if(!AC && G.soundOn){ try{ AC=new(window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return AC; }
+function beep(freq=440, dur=0.12, type='square', vol=0.18, delay=0){
+  if(!G.soundOn) return;
+  const ac=getAC(); if(!ac) return;
+  const o=ac.createOscillator(), g=ac.createGain();
+  o.connect(g); g.connect(ac.destination);
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,ac.currentTime+delay);
+  g.gain.linearRampToValueAtTime(vol,ac.currentTime+delay+0.01);
+  g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+delay+dur);
+  o.start(ac.currentTime+delay); o.stop(ac.currentTime+delay+dur+0.05);
+}
+function playCorrect(){ beep(523,0.1,'square',0.15); beep(659,0.1,'square',0.15,0.1); beep(784,0.2,'square',0.15,0.2); }
+function playWrong(){ beep(200,0.15,'sawtooth',0.18); beep(150,0.2,'sawtooth',0.18,0.15); }
+function playClick(){ beep(880,0.06,'sine',0.12); }
+function playWin(){ [523,659,784,1047].forEach((f,i)=>beep(f,0.15,'square',0.18,i*0.12)); setTimeout(()=>[523,659,784,1047,1318].forEach((f,i)=>beep(f,0.2,'square',0.2,i*0.1)),700); }
+function playBoss(){ beep(110,0.3,'sawtooth',0.25); beep(146,0.3,'sawtooth',0.2,0.1); beep(220,0.5,'square',0.2,0.3); }
+function playTick(){ beep(440,0.05,'sine',0.08); }
+
+// ─────────────────────────────────────────
+//  CONFETTI
+// ─────────────────────────────────────────
+function launchConfetti(count=120){
+  const c=document.getElementById('confetti-canvas');
+  if(!c) return;
+  c.width=window.innerWidth; c.height=window.innerHeight;
+  const ctx=c.getContext('2d');
+  const parts=Array.from({length:count},()=>({
+    x:Math.random()*c.width, y:-20,
+    r:4+Math.random()*8, vx:(Math.random()-0.5)*6,
+    vy:2+Math.random()*5, rot:Math.random()*360,
+    vrot:(Math.random()-0.5)*8,
+    col:['#06B6D4','#FACC15','#F97316','#84CC16','#A855F7','#EF4444','#10B981'][Math.floor(Math.random()*7)],
+    alpha:1
+  }));
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    parts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vrot; p.vy+=0.1;
+      if(p.y>c.height) p.alpha=Math.max(0,p.alpha-0.05);
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.col; ctx.globalAlpha=p.alpha;
+      ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r);
+      ctx.restore();
+    });
+    if(parts.some(p=>p.alpha>0) && frame++<300) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,c.width,c.height);
+  }
+  draw();
+}
+
+// ─────────────────────────────────────────
+//  RENDER HELPER
+// ─────────────────────────────────────────
+function $id(id){ return document.getElementById(id); }
+function render(html){ $id('app').innerHTML=html; }
+
+// ─────────────────────────────────────────
+//  OUTBREAK METER HTML
+// ─────────────────────────────────────────
+function meterHTML(){
+  const pct=Math.min(100,Math.max(0,G.outbreakMeter));
+  const col = pct<35?'#10B981':pct<65?'#FACC15':'#EF4444';
+  const label = pct<35?'🟢 CONTAINED':pct<65?'🟡 MODERATE RISK':'🔴 DANGER ZONE';
+  return `<div class="glass" style="padding:14px 20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-weight:800;font-size:0.85rem;color:${col}">⚡ OUTBREAK METER</span>
+      <span style="font-size:0.78rem;font-weight:700;color:${col}">${label}</span>
+    </div>
+    <div class="meter-bar">
+      <div class="meter-fill" style="width:${pct}%"></div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────
+//  HUD
+// ─────────────────────────────────────────
+function hudHTML(extra=''){
+  const elapsed = G.globalStartTime ? Math.floor((Date.now()-G.globalStartTime)/1000) : 0;
+  const m=Math.floor(elapsed/60), s=elapsed%60;
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;margin-bottom:16px" class="glass">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:1.5rem">${SVG.shield.replace('viewBox="0 0 80 80"','viewBox="0 0 80 80" width="28" height="28"')}</span>
+      <span class="ff" style="font-size:1.1rem;color:var(--cyan)">GERM GUARDIANS</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      ${extra}
+      <div class="mono" style="font-size:0.9rem;color:var(--yellow)">⏱ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</div>
+      <div class="mono badge badge-cyan">⭐ ${G.totalScore.toLocaleString()}</div>
+      <button onclick="toggleSound()" style="background:none;border:none;cursor:pointer;font-size:1.2rem" title="Toggle Sound">${G.soundOn?'🔊':'🔇'}</button>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: WELCOME
+// ─────────────────────────────────────────
+function showWelcome(){
+  G.phase='welcome';
+  render(`
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center">
+    <!-- Floating pathogens -->
+    <div style="position:fixed;top:8%;left:4%;opacity:0.35;width:90px;pointer-events:none" class="float-a">${SVG.bacteria}</div>
+    <div style="position:fixed;top:10%;right:5%;opacity:0.35;width:80px;pointer-events:none" class="float-b">${SVG.virus}</div>
+    <div style="position:fixed;bottom:12%;left:6%;opacity:0.3;width:80px;pointer-events:none" class="float-c">${SVG.fungi}</div>
+    <div style="position:fixed;bottom:10%;right:4%;opacity:0.3;width:85px;pointer-events:none" class="float-d">${SVG.parasite}</div>
+
+    <!-- Logo -->
+    <div class="slide-up" style="margin-bottom:8px">
+      <div class="badge badge-cyan" style="font-size:0.9rem;margin-bottom:16px;padding:8px 20px">🎮 COOPERATIVE EDUCATIONAL GAME • 2–6 PLAYERS</div>
+    </div>
+    <div class="slide-up" style="animation-delay:0.1s">
+      <h1 class="ff" style="font-size:clamp(2.5rem,7vw,4.5rem);line-height:1;margin-bottom:6px">
+        <span style="color:var(--cyan)">GERM</span> <span style="color:var(--yellow)">GUARDIANS</span>
+      </h1>
+      <h2 class="ff" style="font-size:clamp(1.2rem,3vw,2rem);color:var(--coral);margin-bottom:24px">⚡ OUTBREAK DEFENDERS ⚡</h2>
+    </div>
+
+    <!-- Story box -->
+    <div class="glass slide-up" style="max-width:620px;padding:28px 32px;margin-bottom:28px;animation-delay:0.2s;text-align:left">
+      <div style="font-size:1.05rem;line-height:1.75;color:rgba(248,250,252,0.9)">
+        🌍 <strong style="color:var(--yellow)">Mission Briefing:</strong> A mysterious wave of illnesses is spreading across Riverside! Bacteria, viruses, fungi, and parasites are attacking from all sides. The CDC has called on <strong style="color:var(--cyan)">YOUR TEAM</strong> to investigate each outbreak, identify the pathogen, and deploy the right defenses to save the town.<br><br>
+        Work together. Discuss every decision. The right science wins.
+      </div>
+    </div>
+
+    <!-- Pathogen preview -->
+    <div class="slide-up" style="display:flex;gap:16px;margin-bottom:32px;animation-delay:0.3s;flex-wrap:wrap;justify-content:center">
+      ${[
+        {svg:SVG.bacteria,label:'Bacteria',col:'#10B981'},
+        {svg:SVG.virus,label:'Virus',col:'#EF4444'},
+        {svg:SVG.fungi,label:'Fungi',col:'#A855F7'},
+        {svg:SVG.parasite,label:'Parasite',col:'#F97316'}
+      ].map(p=>`
+        <div style="text-align:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px 20px;width:110px">
+          <div style="width:64px;height:64px;margin:0 auto 8px" class="float-a">${p.svg}</div>
+          <div style="font-weight:800;font-size:0.85rem;color:${p.col}">${p.label}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="slide-up" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation-delay:0.4s">
+      <button class="btn btn-cyan btn-lg" onclick="showSetup()">🚀 START MISSION</button>
+      <button class="btn btn-ghost" onclick="showRules()">📋 READ RULES</button>
+      <button class="btn btn-ghost" onclick="showLeaderboard()">🏆 LEADERBOARD</button>
+    </div>
+
+    <div style="margin-top:20px;font-size:0.8rem;color:var(--gray)">
+      Created by your Germ Guardians Team · Middle School Public Health Project · CDC & WHO Educational Content
+    </div>
+  </div>`);
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: RULES
+// ─────────────────────────────────────────
+function showRules(fromSetup=false){
+  G.phase='rules';
+  render(`
+  <div style="min-height:100vh;padding:24px;display:flex;flex-direction:column;align-items:center">
+    <div style="max-width:720px;width:100%">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+        <h2 class="ff" style="font-size:2rem;color:var(--yellow)">📋 HOW TO PLAY</h2>
+        <button class="btn btn-ghost btn-sm" onclick="${fromSetup?'showSetup()':'showWelcome()'}">← Back</button>
+      </div>
+      <div class="glass" style="padding:32px">
+        <div style="display:grid;gap:24px">
+
+          <div>
+            <div class="ff" style="color:var(--cyan);font-size:1.2rem;margin-bottom:8px">🎯 GOAL</div>
+            <p style="color:rgba(248,250,252,0.85);line-height:1.7">Work as a team to stop 4 outbreaks (bacteria, virus, fungi, parasite) plus a FINAL BOSS round. Earn the highest score by answering correctly AND fast!</p>
+          </div>
+
+          <div>
+            <div class="ff" style="color:var(--yellow);font-size:1.2rem;margin-bottom:8px">👥 PLAYERS</div>
+            <ul style="color:rgba(248,250,252,0.85);line-height:2;list-style:none">
+              <li>✦ 2–6 players on one shared device</li>
+              <li>✦ Sit together and discuss every decision out loud</li>
+              <li>✦ Total playtime: 15–30 minutes</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="ff" style="color:var(--lime);font-size:1.2rem;margin-bottom:8px">🔄 EACH LEVEL</div>
+            <ol style="color:rgba(248,250,252,0.85);line-height:2;padding-left:20px">
+              <li><strong style="color:var(--cyan)">Scenario:</strong> Read the outbreak emergency together</li>
+              <li><strong style="color:var(--yellow)">Team Huddle:</strong> Discuss the science (30-second timer)</li>
+              <li><strong style="color:var(--lime)">3 Challenges:</strong> Multiple choice + Select all correct options</li>
+              <li><strong style="color:var(--coral)">All Agree?:</strong> Confirm your team's answer together</li>
+              <li><strong style="color:var(--purple)">Feedback:</strong> Learn the real CDC facts</li>
+            </ol>
+          </div>
+
+          <div>
+            <div class="ff" style="color:var(--coral);font-size:1.2rem;margin-bottom:8px">⭐ SCORING</div>
+            <ul style="color:rgba(248,250,252,0.85);line-height:2;list-style:none">
+              <li>✦ Correct answer: +150 pts (multiple choice) / +200 pts (select all)</li>
+              <li>✦ Speed bonus: up to +50 pts (answer faster = more points)</li>
+              <li>✦ Low Outbreak Meter bonus: up to +500 pts at end</li>
+              <li>✦ Boss round: +100 pts per correct answer</li>
+              <li>✦ Wrong answers raise the Outbreak Meter 🔴</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="ff" style="color:var(--purple);font-size:1.2rem;margin-bottom:8px">🏆 WIN CONDITION</div>
+            <p style="color:rgba(248,250,252,0.85);line-height:1.7">Complete all 4 levels + the Boss Round. Your team earns a Certificate of Achievement and your score is submitted to the GLOBAL LEADERBOARD!</p>
+          </div>
+
+          <div style="background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.3);border-radius:12px;padding:16px">
+            <div class="ff" style="color:var(--yellow);margin-bottom:6px">🤝 TEAMWORK TIP</div>
+            <p style="color:rgba(248,250,252,0.85);font-size:0.95rem;line-height:1.7">Before clicking ANY answer, everyone on the team must discuss and reach consensus. The player whose turn it is clicks the answer — but everyone should agree first! Rushing leads to wrong answers and a rising Outbreak Meter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`);
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: PLAYER SETUP
+// ─────────────────────────────────────────
+function showSetup(){
+  G.phase='setup';
+  render(`
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div style="max-width:560px;width:100%">
+      <div style="text-align:center;margin-bottom:24px">
+        <h2 class="ff" style="font-size:2.2rem;color:var(--cyan)">🧑‍🔬 ASSEMBLE YOUR TEAM</h2>
+        <p style="color:var(--gray)">Enter 2–6 guardian names to begin the mission</p>
+      </div>
+      <div class="glass" style="padding:32px">
+        <div style="margin-bottom:20px">
+          <label style="display:block;font-weight:800;margin-bottom:8px;color:var(--yellow)">🏷️ Team Name (for Leaderboard)</label>
+          <input class="inp" id="team-name" placeholder="e.g. The Germ Busters" maxlength="30"/>
+        </div>
+        <div id="player-inputs">
+          ${[1,2].map(i=>`
+          <div style="margin-bottom:12px">
+            <label style="display:block;font-weight:700;margin-bottom:6px;font-size:0.9rem;color:var(--gray)">Player ${i}</label>
+            <input class="inp" id="p${i}" placeholder="Guardian ${i} name" maxlength="20"/>
+          </div>`).join('')}
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;margin-bottom:24px">
+          <button class="btn btn-ghost btn-sm" onclick="addPlayer()" id="add-btn">+ Add Player</button>
+          <button class="btn btn-ghost btn-sm" onclick="removePlayer()" id="rem-btn" style="display:none">− Remove Player</button>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="showRules(true)">📋 Rules</button>
+          <button class="btn btn-cyan" style="flex:1" onclick="startGame()">🚀 BEGIN MISSION →</button>
+        </div>
+      </div>
+    </div>
+  </div>`);
+}
+
+function addPlayer(){
+  playClick();
+  const div=$id('player-inputs');
+  const count=div.querySelectorAll('input').length;
+  if(count>=6) return;
+  const i=count+1;
+  const row=document.createElement('div');
+  row.style.marginBottom='12px';
+  row.innerHTML=`<label style="display:block;font-weight:700;margin-bottom:6px;font-size:0.9rem;color:var(--gray)">Player ${i}</label><input class="inp" id="p${i}" placeholder="Guardian ${i} name" maxlength="20"/>`;
+  div.appendChild(row);
+  $id('rem-btn').style.display=count>=2?'':'none';
+  if(count>=5) $id('add-btn').style.display='none';
+}
+function removePlayer(){
+  playClick();
+  const div=$id('player-inputs');
+  const inputs=div.querySelectorAll('div');
+  if(inputs.length<=2) return;
+  div.removeChild(inputs[inputs.length-1]);
+  $id('add-btn').style.display='';
+  if(div.querySelectorAll('input').length<=2) $id('rem-btn').style.display='none';
+}
+function startGame(){
+  playClick();
+  const players=[];
+  const inputs=$id('player-inputs').querySelectorAll('input');
+  inputs.forEach(inp=>{ if(inp.value.trim()) players.push(inp.value.trim()); });
+  if(players.length<2){ alert('Please enter at least 2 player names!'); return; }
+  const tname=$id('team-name').value.trim();
+  if(!tname){ alert('Please enter a team name!'); return; }
+  G.players=players; G.teamName=tname;
+  G.scores=Object.fromEntries(players.map(p=>[p,0]));
+  G.totalScore=0; G.outbreakMeter=45; G.levelIdx=0;
+  G.globalStartTime=Date.now(); G.levelScores=[0,0,0,0]; G.bossLevelScore=0;
+  showLevelIntro(0);
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: LEVEL INTRO
+// ─────────────────────────────────────────
+function showLevelIntro(idx){
+  G.phase='level-intro'; G.levelIdx=idx; G.challengeIdx=0;
+  G.confirmed=false; G.selectedOpts=[]; G.pickedOpts=[];
+  G.levelStartTime=Date.now();
+  const lv=LEVELS[idx];
+  render(`
+  <div style="min-height:100vh;padding:20px;display:flex;flex-direction:column">
+    ${hudHTML()}
+    <div style="flex:1;display:flex;align-items:center;justify-content:center">
+      <div style="max-width:680px;width:100%" class="slide-up">
+
+        <!-- Level badge -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+          <span class="badge" style="background:${lv.colorBg};color:${lv.color};border:1px solid ${lv.colorBorder};font-size:0.9rem;padding:8px 18px">
+            🔬 LEVEL ${idx+1} OF 4
+          </span>
+          <span class="ff" style="font-size:1.4rem;color:${lv.color}">${lv.emoji} ${lv.name} Outbreak</span>
+        </div>
+
+        <!-- Scenario card -->
+        <div class="glass" style="padding:28px;margin-bottom:20px;border:1px solid ${lv.colorBorder}">
+          <div style="display:flex;gap:20px;align-items:flex-start">
+            <div style="width:100px;flex-shrink:0;${lv.floatClass=='float-a'?'':''}">
+              <div class="${lv.floatClass}" style="width:100px">${SVG[lv.svgKey]}</div>
+            </div>
+            <div>
+              <div class="ff" style="font-size:1.1rem;color:var(--yellow);margin-bottom:12px">📡 OUTBREAK REPORT</div>
+              <p style="line-height:1.8;font-size:1rem;color:rgba(248,250,252,0.92)">${lv.scenario}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- What you'll learn -->
+        <div style="background:${lv.colorBg};border:1px solid ${lv.colorBorder};border-radius:16px;padding:20px;margin-bottom:24px">
+          <div class="ff" style="color:${lv.color};margin-bottom:12px">🎯 MISSION OBJECTIVES</div>
+          <div style="display:grid;gap:8px;font-size:0.9rem">
+            <div>📌 Identify the <strong>${lv.type}</strong> pathogen type</div>
+            <div>🛡️ Choose correct prevention strategies</div>
+            <div>💊 Select the right treatment</div>
+          </div>
+        </div>
+
+        <!-- Player indicator -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div style="font-size:0.9rem;color:var(--gray)">
+            👤 Current reader: <strong style="color:var(--cyan)">${G.players[G.currentPlayer%G.players.length]}</strong>
+          </div>
+          ${meterHTML().replace('</div>','').replace('<div class="glass" style="padding:14px 20px">','')}
+        </div>
+
+        <button class="btn btn-cyan btn-lg" style="width:100%" onclick="showHuddle(${idx})">
+          🤝 READ TOGETHER → TEAM HUDDLE
+        </button>
+      </div>
+    </div>
+  </div>`);
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: TEAM HUDDLE
+// ─────────────────────────────────────────
+function showHuddle(idx){
+  G.phase='huddle'; G.huddleTimer=30;
+  const lv=LEVELS[idx];
+  playClick();
+  render(`
+  <div style="min-height:100vh;padding:20px;display:flex;flex-direction:column">
+    ${hudHTML()}
+    <div style="flex:1;display:flex;align-items:center;justify-content:center">
+      <div style="max-width:620px;width:100%" class="slide-up">
+
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:3rem;margin-bottom:8px">🤝</div>
+          <h2 class="ff" style="font-size:2rem;color:var(--yellow)">TEAM HUDDLE!</h2>
+          <p style="color:var(--gray)">Discuss together before answering</p>
+        </div>
+
+        <div class="glass" style="padding:28px;margin-bottom:20px;border:1px solid rgba(250,204,21,0.3)">
+          <div class="ff" style="color:var(--yellow);font-size:1.1rem;margin-bottom:16px">💬 DISCUSSION QUESTIONS</div>
+          <p style="line-height:1.9;font-size:1rem">${lv.huddlePrompt}</p>
+        </div>
+
+        <!-- Timer -->
+        <div style="text-align:center;margin-bottom:24px">
+          <div id="huddle-ring" class="timer-ring" style="margin:0 auto 12px;--pct:100%;width:80px;height:80px">
+            <span class="timer-num" id="huddle-num" style="font-size:1.5rem">${G.huddleTimer}</span>
+          </div>
+          <div style="color:var(--gray);font-size:0.9rem">seconds to discuss</div>
+        </div>
+
+        <!-- Player turns -->
+        <div class="glass-bright" style="padding:16px;margin-bottom:24px;text-align:center">
+          <div style="font-size:0.85rem;color:var(--gray);margin-bottom:6px">TEAM MEMBERS</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+            ${G.players.map((p,i)=>`<span class="badge" style="${i===G.currentPlayer%G.players.length?'background:rgba(6,182,212,0.2);color:var(--cyan);border-color:rgba(6,182,212,0.5)':'background:rgba(255,255,255,0.05);color:var(--gray);border-color:rgba(255,255,255,0.1)'}">${i===G.currentPlayer%G.players.length?'🎯 ':''} ${p}</span>`).join('')}
+          </div>
+        </div>
+
+        <button class="btn btn-lime btn-lg" style="width:100%" id="huddle-btn" onclick="endHuddle(${idx})">
+          ✅ WE'VE DISCUSSED — CHALLENGE TIME! →
+        </button>
+      </div>
+    </div>
+  </div>`);
+
+  // Countdown
+  clearInterval(G.huddleHandle);
+  G.huddleHandle=setInterval(()=>{
+    G.huddleTimer--;
+    playTick();
+    const n=$id('huddle-num'), r=$id('huddle-ring');
+    if(n){ n.textContent=Math.max(0,G.huddleTimer); }
+    if(r){ const pct=(Math.max(0,G.huddleTimer)/30)*100; r.style.setProperty('--pct',pct+'%'); r.style.background=`conic-gradient(var(--cyan) ${pct}%,rgba(255,255,255,0.1) 0%)`; }
+    if(G.huddleTimer<=0){
+      clearInterval(G.huddleHandle);
+      const btn=$id('huddle-btn');
+      if(btn){ btn.textContent='✅ TIME\'S UP — CHALLENGE TIME! →'; btn.style.animation='glow-border 1s ease-in-out infinite'; }
+    }
+  },1000);
+}
+
+function endHuddle(idx){
+  clearInterval(G.huddleHandle);
+  playClick();
+  showChallenge(idx,0);
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: CHALLENGE
+// ─────────────────────────────────────────
+function showChallenge(lvIdx,chIdx){
+  G.phase='challenge'; G.levelIdx=lvIdx; G.challengeIdx=chIdx;
+  G.selectedOpts=[]; G.pickedOpts=[]; G.confirmed=false;
+  G.challengeStartTime=Date.now();
+  const lv=LEVELS[lvIdx], ch=lv.challenges[chIdx];
+  const totalCh=lv.challenges.length;
+  const player=G.players[G.currentPlayer%G.players.length];
+
+  if(ch.type==='mc'){
+    render(`
+    <div style="min-height:100vh;padding:20px;display:flex;flex-direction:column">
+      ${hudHTML(`<span class="badge badge-yellow">Q${chIdx+1}/${totalCh}</span>`)}
+      <div style="flex:1;display:flex;align-items:center;justify-content:center">
+        <div style="max-width:660px;width:100%" class="slide-up">
+          ${meterHTML()}
+          <div style="margin:16px 0">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <span style="background:${lv.colorBg};border:1px solid ${lv.colorBorder};color:${lv.color};border-radius:10px;padding:6px 14px;font-weight:800;font-size:0.85rem">${lv.emoji} ${lv.name}</span>
+              <span style="color:var(--gray);font-size:0.85rem">👤 ${player}'s turn to click</span>
+            </div>
+            <div class="glass" style="padding:24px;margin-bottom:16px">
+              <p style="font-size:1.1rem;font-weight:800;line-height:1.6">${ch.q}</p>
+            </div>
+            <div id="opts-wrap">
+              ${ch.opts.map((o,i)=>`<button class="opt" id="opt-${i}" onclick="selectMC(${i})">${['🅐','🅑','🅒','🅓'][i]} ${o}</button>`).join('')}
+            </div>
+            <div id="confirm-area" style="margin-top:16px;display:none">
+              <div style="background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.3);border-radius:12px;padding:14px;margin-bottom:12px;font-size:0.9rem">
+                🤝 <strong style="color:var(--yellow)">ALL AGREE?</strong> Make sure everyone on the team agrees before confirming!
+              </div>
+              <button class="btn btn-yellow" style="width:100%" onclick="confirmMC(${lvIdx},${chIdx})">✅ TEAM CONFIRMS THIS ANSWER →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+  } else {
+    // Select All
+    render(`
+    <div style="min-height:100vh;padding:20px;display:flex;flex-direction:column">
+      ${hudHTML(`<span class="badge badge-yellow">Q${chIdx+1}/${totalCh}</span>`)}
+      <div style="flex:1;display:flex;align-items:center;justify-content:center">
+        <div style="max-width:660px;width:100%" class="slide-up">
+          ${meterHTML()}
+          <div style="margin:16px 0">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <span style="background:${lv.colorBg};border:1px solid ${lv.colorBorder};color:${lv.color};border-radius:10px;padding:6px 14px;font-weight:800;font-size:0.85rem">${lv.emoji} ${lv.name}</span>
+              <span class="badge badge-cyan" style="font-size:0.75rem">SELECT ALL THAT APPLY</span>
+            </div>
+            <div class="glass" style="padding:24px;margin-bottom:16px">
+              <p style="font-size:1.05rem;font-weight:800;line-height:1.6">${ch.q}</p>
+            </div>
+            <div id="opts-wrap">
+              ${ch.opts.map((o,i)=>`
+              <div class="check-opt" id="co-${i}" onclick="toggleSA(${i})">
+                <div class="check-box" id="cb-${i}"><span id="ck-${i}" style="display:none;font-size:0.8rem;color:white">✓</span></div>
+                <span>${o.text}</span>
+              </div>`).join('')}
+            </div>
+            <div style="margin-top:16px">
+              <div style="background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.3);border-radius:12px;padding:12px;margin-bottom:12px;font-size:0.85rem">
+                🤝 <strong style="color:var(--yellow)">Discuss as a team</strong>, then select all correct options and confirm!
+              </div>
+              <button class="btn btn-yellow" style="width:100%" onclick="confirmSA(${lvIdx},${chIdx})">✅ TEAM CONFIRMS SELECTIONS →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
+  }
+}
+
+function selectMC(i){
+  playClick();
+  // Deselect all
+  LEVELS[G.levelIdx].challenges[G.challengeIdx].opts.forEach((_,j)=>{
+    const el=$id(`opt-${j}`);
+    if(el) el.className='opt';
+  });
+  $id(`opt-${i}`).className='opt selected';
+  G.selectedOpts=[i];
+  $id('confirm-area').style.display='block';
+}
+
+function toggleSA(i){
+  playClick();
+  const el=$id(`co-${i}`), ck=$id(`ck-${i}`);
+  if(G.pickedOpts.includes(i)){
+    G.pickedOpts=G.pickedOpts.filter(x=>x!==i);
+    el.className='check-opt'; ck.style.display='none';
+  } else {
+    G.pickedOpts.push(i);
+    el.className='check-opt picked'; ck.style.display='';
+  }
+}
+
+function confirmMC(lvIdx,chIdx){
+  if(G.selectedOpts.length===0) return;
+  playClick();
+  const lv=LEVELS[lvIdx], ch=lv.challenges[chIdx];
+  const chosen=G.selectedOpts[0];
+  const correct=chosen===ch.correct;
+  const elapsed=(Date.now()-G.challengeStartTime)/1000;
+  const speedBonus=correct?Math.max(0,Math.round(50*(1-elapsed/30))):0;
+  const pts=correct?ch.points+speedBonus:0;
+
+  // Reveal
+  ch.opts.forEach((_,j)=>{
+    const el=$id(`opt-${j}`);
+    if(!el) return;
+    el.disabled=true;
+    if(j===ch.correct) el.className='opt correct';
+    else if(j===chosen && !correct) el.className='opt wrong';
+  });
+  $id('confirm-area').style.display='none';
+
+  if(correct){ playCorrect(); G.totalScore+=pts; G.levelScores[lvIdx]=(G.levelScores[lvIdx]||0)+pts; G.outbreakMeter=Math.max(0,G.outbreakMeter-12); }
+  else{ playWrong(); G.outbreakMeter=Math.min(100,G.outbreakMeter+18); }
+
+  setTimeout(()=>showFeedback(lvIdx,chIdx,correct,pts,ch.explanation),1200);
+}
+
+function confirmSA(lvIdx,chIdx){
+  playClick();
+  const lv=LEVELS[lvIdx], ch=lv.challenges[chIdx];
+  const correctSet=ch.opts.map((o,i)=>o.correct?i:-1).filter(i=>i>=0);
+  const picked=G.pickedOpts;
+  const allCorrect=correctSet.every(i=>picked.includes(i)) && picked.every(i=>correctSet.includes(i));
+  const someCorrect=correctSet.some(i=>picked.includes(i));
+  const elapsed=(Date.now()-G.challengeStartTime)/1000;
+  const speedBonus=allCorrect?Math.max(0,Math.round(50*(1-elapsed/40))):0;
+  const pts=allCorrect?ch.points+speedBonus:someCorrect?Math.round(ch.points*0.5):0;
+
+  // Reveal
+  ch.opts.forEach((o,i)=>{
+    const el=$id(`co-${i}`), ck=$id(`ck-${i}`);
+    if(!el) return;
+    el.onclick=null;
+    if(o.correct){ el.className='check-opt reveal-good'; ck.style.display=''; ck.textContent='✓'; }
+    else if(picked.includes(i)){ el.className='check-opt reveal-bad'; ck.style.display=''; ck.textContent='✗'; }
+  });
+
+  if(allCorrect){ playCorrect(); G.totalScore+=pts; G.levelScores[lvIdx]=(G.levelScores[lvIdx]||0)+pts; G.outbreakMeter=Math.max(0,G.outbreakMeter-14); }
+  else if(someCorrect){ G.totalScore+=pts; G.levelScores[lvIdx]=(G.levelScores[lvIdx]||0)+pts; G.outbreakMeter=Math.min(100,G.outbreakMeter+8); }
+  else{ playWrong(); G.outbreakMeter=Math.min(100,G.outbreakMeter+18); }
+
+  setTimeout(()=>showFeedback(lvIdx,chIdx,allCorrect,pts,ch.explanation,someCorrect&&!allCorrect),1200);
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: FEEDBACK
+// ─────────────────────────────────────────
+function showFeedback(lvIdx,chIdx,correct,pts,explanation,partial=false){
+  G.phase='feedback';
+  const lv=LEVELS[lvIdx];
+  const isLast=chIdx>=lv.challenges.length-1;
+  const icon=correct?'✅':partial?'⚠️':'❌';
+  const col=correct?'var(--lime)':partial?'var(--yellow)':'var(--red)';
+  const label=correct?'CORRECT! Well done!':partial?'PARTIAL CREDIT — Close!':'WRONG — Learn from this!';
+
+  render(`
+  <div style="min-height:100vh;padding:20px;display:flex;flex-direction:column">
+    ${hudHTML()}
+    <div style="flex:1;display:flex;align-items:center;justify-content:center">
+      <div style="max-width:640px;width:100%" class="pop-in">
+
+        <!-- Result banner -->
+        <div style="background:${correct?'rgba(132,204,22,0.1)':partial?'rgba(250,204,21,0.1)':'rgba(239,68,68,0.1)'};border:2px solid ${col};border-radius:20px;padding:24px;margin-bottom:20px;text-align:center">
+          <div style="font-size:3rem;margin-bottom:8px">${icon}</div>
+          <div class="ff" style="font-size:1.5rem;color:${col}">${label}</div>
+          ${pts>0?`<div style="font-size:1.1rem;margin-top:8px">+<strong style="color:var(--yellow)">${pts.toLocaleString()}</strong> points!</div>`:''}
+        </div>
+
+        <!-- Explanation -->
+        <div class="glass" style="padding:24px;margin-bottom:16px">
+          <div class="ff" style="color:var(--cyan);margin-bottom:10px">🧬 CDC SCIENCE FACT</div>
+          <p style="line-height:1.75;font-size:0.98rem">${explanation}</p>
+        </div>
+
+        <!-- Pathogen quick fact -->
+        <div style="background:${lv.colorBg};border:1px solid ${lv.colorBorder};border-radius:14px;padding:18px;margin-bottom:20px;font-size:0.9rem">
+          <div class="ff" style="color:${lv.color};margin-bottom:8px">${lv.emoji} QUICK FACTS: ${lv.name.toUpperCase()}</div>
+          <div style="display:grid;gap:6px">
+            <div>📌 <strong>What it is:</strong> ${lv.typeDesc}</div>
+            <div>🧫 <strong>Example:</strong> ${lv.example}</div>
+          </div>
+        </div>
+
+        <!-- Outbreak meter -->
+        ${meterHTML()}
+
+        <div style="margin-top:20px">
+          ${isLast
+            ? `<button class="btn btn-lime btn-lg" style="width:100%" onclick="showLevelComplete(${lvIdx})">🎉 LEVEL COMPLETE! →</button>`
+            : `<button class="btn btn-cyan btn-lg" style="width:100%" onclick="showChallenge(${lvIdx},${chIdx+1})">➡️ NEXT CHALLENGE (${chIdx+2}/${lv.challenges.length})</button>`
+          }
+        </div>
+      </div>
+    </div>
+  </div>`);
+
+  if(correct) launchConfetti(60);
+  G.currentPlayer++;
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: LEVEL COMPLETE
+// ─────────────────────────────────────────
+function showLevelComplete(idx){
+  G.phase='level-complete';
+  const lv=LEVELS[idx];
+  const isLast=idx>=LEVELS.length-1;
+  const stars=G.levelScores[idx]>=400?3:G.levelScores[idx]>=250?2:1;
+  playCorrect();
+
+  render(`
+  <div style="min-height:100vh;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div style="max-width:600px;width:100%;text-align:center" class="pop-in">
+
+      <div style="font-size:4rem;margin-bottom:12px">${lv.emoji}</div>
+      <h2 class="ff" style="font-size:2.2rem;color:${lv.color};margin-bottom:4px">${lv.name} OUTBREAK</h2>
+      <div class="ff" style="font-size:1.5rem;color:var(--yellow);margin-bottom:24px">CONTAINED! 🎉</div>
+
+      <!-- Stars -->
+      <div style="font-size:2.5rem;margin-bottom:20px">
+        ${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}
+      </div>
+
+      <!-- Level summary -->
+      <div class="glass" style="padding:24px;margin-bottom:20px;text-align:left">
+        <div class="ff" style="color:var(--cyan);margin-bottom:14px;text-align:center">📚 WHAT YOU LEARNED</div>
+        <div style="display:grid;gap:10px;font-size:0.9rem">
+          <div style="background:${lv.colorBg};border:1px solid ${lv.colorBorder};border-radius:10px;padding:14px">
+            <strong style="color:${lv.color}">🔬 Type:</strong> ${lv.typeDesc}
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:14px">
+            <strong style="color:var(--yellow)">🧫 Example:</strong> ${lv.example}
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:14px">
+            <strong style="color:var(--lime)">🛡️ Prevention:</strong> ${lv.prevention.join(' · ')}
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:14px">
+            <strong style="color:var(--coral)">💊 Treatment:</strong> ${lv.treatment}
+          </div>
+        </div>
+      </div>
+
+      <div class="mono" style="margin-bottom:20px;font-size:1rem;color:var(--yellow)">
+        Level Score: +${(G.levelScores[idx]||0).toLocaleString()} pts &nbsp;|&nbsp; Total: ${G.totalScore.toLocaleString()} pts
+      </div>
+
+      ${isLast
+        ? `<button class="btn btn-coral btn-lg" style="width:100%" onclick="showBossIntro()">⚡ FINAL BOSS ROUND! →</button>`
+        : `<button class="btn btn-cyan btn-lg" style="width:100%" onclick="showLevelIntro(${idx+1})">🚀 NEXT LEVEL: ${LEVELS[idx+1].emoji} ${LEVELS[idx+1].name} →</button>`
+      }
+    </div>
+  </div>`);
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: BOSS INTRO
+// ─────────────────────────────────────────
+function showBossIntro(){
+  G.phase='boss-intro';
+  playBoss();
+  render(`
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div style="max-width:640px;width:100%;text-align:center" class="pop-in">
+      <div style="font-size:5rem;margin-bottom:12px;animation:float 2s ease-in-out infinite">⚔️</div>
+      <h2 class="ff" style="font-size:3rem;color:var(--red);margin-bottom:8px">FINAL BOSS!</h2>
+      <div class="ff" style="font-size:1.5rem;color:var(--yellow);margin-bottom:24px">ALL 4 PATHOGENS ATTACK AT ONCE!</div>
+
+      <div class="glass" style="padding:28px;margin-bottom:24px;border:1px solid rgba(239,68,68,0.4)">
+        <div style="display:flex;justify-content:center;gap:16px;margin-bottom:20px">
+          ${[SVG.bacteria,SVG.virus,SVG.fungi,SVG.parasite].map((s,i)=>`<div style="width:60px" class="${['float-a','float-b','float-c','float-d'][i]}">${s}</div>`).join('')}
+        </div>
+        <p style="line-height:1.75;font-size:1rem">🚨 The pathogens have combined forces! You have <strong style="color:var(--yellow)">15 seconds</strong> per question to answer using everything your team has learned. ${BOSS_QS.length} rapid-fire questions — use ALL your knowledge!</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+        ${LEVELS.map(lv=>`
+        <div style="background:${lv.colorBg};border:1px solid ${lv.colorBorder};border-radius:12px;padding:14px">
+          <div style="font-size:1.5rem">${lv.emoji}</div>
+          <div style="font-weight:800;font-size:0.8rem;color:${lv.color}">${lv.name}</div>
+          <div style="font-size:0.7rem;color:var(--gray);margin-top:2px">${G.levelScores[LEVELS.indexOf(lv)].toLocaleString()} pts</div>
+        </div>`).join('')}
+      </div>
+
+      <button class="btn btn-red btn-lg" style="width:100%;background:var(--red)" onclick="startBoss()">⚡ BEGIN BOSS BATTLE →</button>
+    </div>
+  </div>`);
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: BOSS QUESTION
+// ─────────────────────────────────────────
+function startBoss(){ G.bossIdx=0; G.bossScore=0; showBossQ(); }
+
+function showBossQ(){
+  G.phase='boss';
+  if(G.bossIdx>=BOSS_QS.length){ showWin(); return; }
+  const q=BOSS_QS[G.bossIdx];
+  G.bossTimer=15;
+  G.selectedOpts=[];
+
+  render(`
+  <div style="min-height:100vh;padding:20px;display:flex;flex-direction:column">
+    ${hudHTML(`<span class="badge badge-red" style="background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.5);color:var(--red)">BOSS ${G.bossIdx+1}/${BOSS_QS.length}</span>`)}
+    <div style="flex:1;display:flex;align-items:center;justify-content:center">
+      <div style="max-width:640px;width:100%" class="slide-up">
+
+        <!-- Boss timer -->
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+          <div id="boss-ring" class="timer-ring" style="--pct:100%;background:conic-gradient(var(--red) 100%,rgba(255,255,255,0.1) 0%)">
+            <span class="timer-num" id="boss-num" style="color:var(--red)">${G.bossTimer}</span>
+          </div>
+          <div style="flex:1">
+            <div class="ff" style="color:var(--red);font-size:1.1rem">⚡ BOSS BATTLE</div>
+            <div style="color:var(--gray);font-size:0.85rem">All 4 pathogens · ${BOSS_QS.length - G.bossIdx} questions remaining</div>
+          </div>
+          <div class="mono badge badge-yellow">+${G.bossScore.toLocaleString()}</div>
+        </div>
+
+        <!-- Question -->
+        <div class="glass" style="padding:24px;margin-bottom:16px;border:1px solid rgba(239,68,68,0.3)">
+          <p style="font-size:1.1rem;font-weight:800;line-height:1.6">${q.q}</p>
+        </div>
+
+        <!-- Options -->
+        <div id="boss-opts">
+          ${q.opts.map((o,i)=>`<button class="opt" id="bopt-${i}" onclick="selectBossOpt(${i})">${['🅐','🅑','🅒','🅓'][i]} ${o}</button>`).join('')}
+        </div>
+        <div id="boss-confirm" style="margin-top:12px;display:none">
+          <button class="btn btn-red" style="width:100%;background:var(--red)" onclick="confirmBoss()">🚨 TEAM CONFIRMS →</button>
+        </div>
+        <div id="boss-feedback" style="margin-top:12px;display:none"></div>
+      </div>
+    </div>
+  </div>`);
+
+  // Boss timer countdown
+  clearInterval(G.bossTimerHandle);
+  G.bossTimerHandle=setInterval(()=>{
+    G.bossTimer--;
+    playTick();
+    const n=$id('boss-num'), r=$id('boss-ring');
+    if(n) n.textContent=Math.max(0,G.bossTimer);
+    if(r){
+      const pct=(Math.max(0,G.bossTimer)/15)*100;
+      r.style.background=`conic-gradient(var(--red) ${pct}%,rgba(255,255,255,0.1) 0%)`;
+    }
+    if(G.bossTimer<=0){
+      clearInterval(G.bossTimerHandle);
+      if(!G.confirmed) autoFailBoss();
+    }
+  },1000);
+}
+
+function selectBossOpt(i){
+  if(G.confirmed) return;
+  playClick();
+  BOSS_QS[G.bossIdx].opts.forEach((_,j)=>{
+    const el=$id(`bopt-${j}`);
+    if(el) el.className='opt';
+  });
+  $id(`bopt-${i}`).className='opt selected';
+  G.selectedOpts=[i];
+  $id('boss-confirm').style.display='block';
+}
+
+function autoFailBoss(){
+  G.confirmed=true;
+  clearInterval(G.bossTimerHandle);
+  const q=BOSS_QS[G.bossIdx];
+  revealBossAnswer(-1, q.correct, false);
+}
+
+function confirmBoss(){
+  if(G.confirmed||G.selectedOpts.length===0) return;
+  G.confirmed=true;
+  clearInterval(G.bossTimerHandle);
+  playClick();
+  const q=BOSS_QS[G.bossIdx];
+  const chosen=G.selectedOpts[0];
+  const correct=chosen===q.correct;
+  if(correct){ playCorrect(); G.bossScore+=100; G.totalScore+=100; G.outbreakMeter=Math.max(0,G.outbreakMeter-10); }
+  else{ playWrong(); G.outbreakMeter=Math.min(100,G.outbreakMeter+12); }
+  revealBossAnswer(chosen,q.correct,correct);
+}
+
+function revealBossAnswer(chosen,correctIdx,correct){
+  BOSS_QS[G.bossIdx].opts.forEach((_,j)=>{
+    const el=$id(`bopt-${j}`);
+    if(!el) return;
+    el.disabled=true;
+    if(j===correctIdx) el.className='opt correct';
+    else if(j===chosen) el.className='opt wrong';
+  });
+  $id('boss-confirm').style.display='none';
+  const fb=$id('boss-feedback');
+  if(fb){
+    fb.style.display='block';
+    fb.innerHTML=`<div style="background:${correct?'rgba(132,204,22,0.1)':'rgba(239,68,68,0.1)'};border:1px solid ${correct?'var(--lime)':'var(--red)'};border-radius:12px;padding:14px;margin-bottom:12px">
+      <div style="font-weight:800;color:${correct?'var(--lime)':'var(--red)'};margin-bottom:6px">${correct?'✅ CORRECT! +100 pts':'❌ WRONG!'}</div>
+      <div style="font-size:0.9rem;line-height:1.6">${BOSS_QS[G.bossIdx].fact}</div>
+    </div>
+    <button class="btn btn-cyan" style="width:100%" onclick="nextBossQ()">→ NEXT</button>`;
+  }
+}
+
+function nextBossQ(){
+  playClick();
+  G.bossIdx++;
+  G.confirmed=false;
+  G.selectedOpts=[];
+  showBossQ();
+}
+
+// ─────────────────────────────────────────
+//  SCREEN: WIN
+// ─────────────────────────────────────────
+function showWin(){
+  G.phase='win';
+  clearInterval(G.bossTimerHandle);
+
+  // Outbreak meter bonus
+  const meterBonus=Math.round((100-G.outbreakMeter)*5);
+  G.totalScore+=meterBonus;
+  G.bossLevelScore=G.bossScore;
+
+  const elapsed=G.globalStartTime?Math.floor((Date.now()-G.globalStartTime)/1000):0;
+  const m=Math.floor(elapsed/60), s=elapsed%60;
+
+  playWin();
+  launchConfetti(200);
+  submitScore(G.teamName,G.totalScore,G.players);
+
+  render(`
+  <div style="min-height:100vh;padding:24px;display:flex;flex-direction:column;align-items:center">
+    <div style="max-width:720px;width:100%" class="slide-up">
+
+      <!-- Win banner -->
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:5rem;animation:float 2s ease-in-out infinite">🏆</div>
+        <h1 class="ff" style="font-size:clamp(2rem,6vw,3.5rem);color:var(--yellow);margin:8px 0">TOWN SAVED!</h1>
+        <p class="ff" style="font-size:1.3rem;color:var(--cyan)">All Outbreaks Contained! 🎉</p>
+      </div>
+
+      <!-- Certificate -->
+      <div class="certificate" style="margin-bottom:24px;text-align:center">
+        <div class="ff" style="color:var(--yellow);font-size:1.5rem;margin-bottom:4px">🏅 Certificate of Achievement</div>
+        <div style="font-size:0.9rem;color:var(--gray);margin-bottom:16px">Germ Guardians Cooperative Public Health Game</div>
+        <div style="font-size:1.1rem;margin-bottom:8px">This certifies that</div>
+        <div class="ff" style="font-size:2rem;color:var(--cyan);margin-bottom:4px">${G.teamName}</div>
+        <div style="font-size:0.95rem;color:rgba(248,250,252,0.7);margin-bottom:8px">(${G.players.join(', ')})</div>
+        <div style="font-size:1rem;margin-bottom:16px">successfully defended Riverside against bacterial, viral,<br>fungal, and parasitic outbreaks using real public health science.</div>
+        <div class="ff" style="font-size:2.5rem;color:var(--yellow)">⭐ ${G.totalScore.toLocaleString()} POINTS ⭐</div>
+        <div style="font-size:0.85rem;color:var(--gray);margin-top:8px">Time: ${m}m ${s}s</div>
+      </div>
+
+      <!-- Score breakdown -->
+      <div class="glass" style="padding:24px;margin-bottom:24px">
+        <div class="ff" style="color:var(--cyan);margin-bottom:16px">📊 SCORE BREAKDOWN</div>
+        <div style="display:grid;gap:10px">
+          ${LEVELS.map((lv,i)=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:${lv.colorBg};border:1px solid ${lv.colorBorder};border-radius:10px">
+            <span>${lv.emoji} Level ${i+1}: ${lv.name}</span>
+            <span class="mono" style="color:var(--yellow)">+${G.levelScores[i].toLocaleString()}</span>
+          </div>`).join('')}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px">
+            <span>⚡ Boss Round</span>
+            <span class="mono" style="color:var(--yellow)">+${G.bossLevelScore.toLocaleString()}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(132,204,22,0.08);border:1px solid rgba(132,204,22,0.3);border-radius:10px">
+            <span>🟢 Outbreak Containment Bonus</span>
+            <span class="mono" style="color:var(--lime)">+${meterBonus.toLocaleString()}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(250,204,21,0.1);border:2px solid rgba(250,204,21,0.5);border-radius:10px">
+            <span class="ff" style="font-size:1.1rem">🏆 TOTAL SCORE</span>
+            <span class="ff mono" style="color:var(--yellow);font-size:1.3rem">${G.totalScore.toLocaleString()}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- What You Learned -->
+      <div class="glass" style="padding:24px;margin-bottom:24px">
+        <div class="ff" style="color:var(--yellow);font-size:1.2rem;margin-bottom:20px">📚 WHAT YOU LEARNED — Full Research Summary</div>
+        ${LEVELS.map(lv=>`
+        <div style="margin-bottom:20px;padding:18px;background:${lv.colorBg};border:1px solid ${lv.colorBorder};border-radius:14px">
+          <div class="ff" style="color:${lv.color};font-size:1.05rem;margin-bottom:10px">${lv.emoji} ${lv.name.toUpperCase()}</div>
+          <div style="font-size:0.88rem;display:grid;gap:8px;line-height:1.6">
+            <div>📌 <strong>Definition:</strong> ${lv.typeDesc}</div>
+            <div>🧫 <strong>Example:</strong> ${lv.example}</div>
+            <div>🛡️ <strong>Prevention:</strong> ${lv.prevention.map(p=>`<span style="display:inline-block;background:rgba(255,255,255,0.06);border-radius:6px;padding:2px 8px;margin:2px">${p}</span>`).join(' ')}</div>
+            <div>💊 <strong>Treatment:</strong> ${lv.treatment}</div>
+          </div>
+        </div>`).join('')}
+
+        <!-- CRITICAL FACT BOX -->
+        <div style="background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.4);border-radius:14px;padding:18px">
+          <div class="ff" style="color:var(--red);margin-bottom:8px">🚨 KEY FACT: ANTIBIOTICS</div>
+          <p style="font-size:0.9rem;line-height:1.7">Antibiotics <strong>ONLY</strong> work on <strong>bacteria</strong>. They do NOT work on viruses, fungi, or parasites. Using the wrong medicine wastes time, can cause side effects, and contributes to antibiotic resistance — a global health crisis.</p>
+        </div>
+      </div>
+
+      <!-- Citations -->
+      <div class="glass" style="padding:20px;margin-bottom:24px;font-size:0.82rem">
+        <div class="ff" style="color:var(--gray);margin-bottom:10px">📖 SOURCES & CITATIONS</div>
+        <div style="display:grid;gap:6px;color:var(--gray);line-height:1.6">
+          <div>• Centers for Disease Control and Prevention (CDC). <em>Investigating an Outbreak.</em> CDC Public Health 101 Series.</div>
+          <div>• Centers for Disease Control and Prevention (CDC). <em>Introduction to Infectious Diseases.</em> National Center for Emerging and Zoonotic Infectious Diseases.</div>
+          <div>• World Health Organization (WHO). <em>Antimicrobial resistance.</em> WHO Fact Sheet. who.int</div>
+          <div>• CDC. <em>Antibiotic Resistance — What You Need to Know.</em> cdc.gov/antibiotic-use</div>
+          <div>• WHO. <em>Malaria Fact Sheet.</em> who.int/news-room/fact-sheets/detail/malaria</div>
+          <div>• CDC. <em>Influenza (Flu) — Prevention and Treatment.</em> cdc.gov/flu</div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-cyan btn-lg" style="flex:1" onclick="showLeaderboard()">🏆 VIEW LEADERBOARD</button>
+        <button class="btn btn-yellow" onclick="location.reload()">🔄 PLAY AGAIN</button>
+      </div>
+
+    </div>
+  </div>`);
+}
+
+// ─────────────────────────────────────────
+//  LEADERBOARD
+// ─────────────────────────────────────────
+async function fetchLeaderboard(){
+  try{
+    const res=await fetch('/api/leaderboard');
+    if(!res.ok) throw new Error();
+    return await res.json();
+  }catch(e){
+    // Fallback: try localStorage
+    try{
+      const local=JSON.parse(localStorage.getItem('gg_lb')||'[]');
+      return local.sort((a,b)=>b.score-a.score).slice(0,10);
+    }catch{return [];}
+  }
+}
+
+async function submitScore(teamName,score,players){
+  const entry={teamName,score,players,date:new Date().toLocaleDateString()};
+  try{
+    await fetch('/api/submit-score',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(entry)
+    });
+  }catch(e){}
+  // Always save to localStorage as backup
+  try{
+    const local=JSON.parse(localStorage.getItem('gg_lb')||'[]');
+    local.push(entry);
+    local.sort((a,b)=>b.score-a.score);
+    localStorage.setItem('gg_lb',JSON.stringify(local.slice(0,50)));
+  }catch(e){}
+}
+
+async function showLeaderboard(){
+  G.phase='leaderboard';
+  render(`
+  <div style="min-height:100vh;padding:24px;display:flex;flex-direction:column;align-items:center">
+    <div style="max-width:700px;width:100%">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2 class="ff" style="font-size:2.2rem;color:var(--yellow)">🏆 GLOBAL LEADERBOARD</h2>
+          <p style="color:var(--gray);font-size:0.9rem">Top Germ Guardian Teams Worldwide</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="showWelcome()">← Home</button>
+      </div>
+
+      <!-- Top 3 podium -->
+      <div id="lb-podium" class="glass" style="padding:24px;margin-bottom:20px;text-align:center">
+        <div style="color:var(--gray)">⏳ Loading scores...</div>
+      </div>
+
+      <!-- Full list -->
+      <div class="glass" style="padding:20px">
+        <div class="ff" style="color:var(--cyan);margin-bottom:16px">📋 ALL SCORES</div>
+        <div id="lb-list"><div style="color:var(--gray);text-align:center;padding:20px">⏳ Loading...</div></div>
+      </div>
+
+      <div style="margin-top:16px;text-align:center">
+        <button class="btn btn-ghost btn-sm" onclick="refreshLB()">🔄 Refresh Scores</button>
+      </div>
+    </div>
+  </div>`);
+
+  loadLB();
+}
+
+async function loadLB(){
+  const scores=await fetchLeaderboard();
+  const medals=['🥇','🥈','🥉'];
+  const podiumClasses=['gold','silver','bronze'];
+
+  // Podium
+  const podium=$id('lb-podium');
+  if(podium){
+    if(!scores||scores.length===0){
+      podium.innerHTML='<div style="color:var(--gray);padding:20px">No scores yet — be the first! 🎮</div>';
+    } else {
+      const top=scores.slice(0,3);
+      podium.innerHTML=`
+        <div class="ff" style="color:var(--yellow);font-size:1.1rem;margin-bottom:16px">⭐ TOP GUARDIANS</div>
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+          ${top.map((s,i)=>`
+          <div style="background:${i===0?'rgba(250,204,21,0.1)':i===1?'rgba(148,163,184,0.08)':'rgba(249,115,22,0.08)'};border:2px solid ${i===0?'var(--yellow)':i===1?'#94A3B8':'var(--coral)'};border-radius:16px;padding:20px;min-width:150px">
+            <div style="font-size:2rem">${medals[i]||'🏅'}</div>
+            <div style="font-weight:900;margin:4px 0;font-size:0.95rem">${s.teamName}</div>
+            <div class="mono" style="color:var(--yellow);font-size:1.1rem">${(+s.score).toLocaleString()}</div>
+            <div style="font-size:0.75rem;color:var(--gray)">${s.date||''}</div>
+          </div>`).join('')}
+        </div>`;
+    }
+  }
+
+  // Full list
+  const list=$id('lb-list');
+  if(list){
+    if(!scores||scores.length===0){
+      list.innerHTML='<div style="color:var(--gray);text-align:center;padding:20px">Play a game to see your team here! 🎮</div>';
+    } else {
+      list.innerHTML=scores.map((s,i)=>`
+      <div class="lb-row ${podiumClasses[i]||''}">
+        <div style="font-size:${i<3?'1.5rem':'1rem'};text-align:center">${medals[i]||`#${i+1}`}</div>
+        <div>
+          <div style="font-weight:800">${s.teamName}</div>
+          <div style="font-size:0.78rem;color:var(--gray)">${Array.isArray(s.players)?s.players.join(', '):'—'}</div>
+        </div>
+        <div class="mono" style="color:var(--yellow);font-size:1.05rem;text-align:right">${(+s.score).toLocaleString()}</div>
+        <div style="font-size:0.78rem;color:var(--gray);text-align:right">${s.date||''}</div>
+      </div>`).join('');
+    }
+  }
+}
+
+function refreshLB(){ playClick(); loadLB(); }
+function toggleSound(){ G.soundOn=!G.soundOn; if(!G.soundOn && AC){ AC.close(); AC=null; } }
+
+// ─────────────────────────────────────────
+//  TICKER TAPE
+// ─────────────────────────────────────────
+function addTicker(){
+  const facts=[
+    '🦠 Bacteria are LIVING organisms — antibiotics can kill them!',
+    '🔴 Viruses hijack your cells — antibiotics do NOT work on viruses!',
+    '🍄 Fungi thrive in warm damp places — keep skin dry!',
+    '🦟 Parasites steal nutrients — Plasmodium causes malaria via mosquito bites!',
+    '🧼 #1 Universal Prevention: Wash hands with soap for 20 seconds!',
+    '💊 Antibiotics: ONLY for bacteria. Never for viruses, fungi, or parasites!',
+    '💉 Annual flu vaccine = best protection against influenza!',
+    '👟 Wear shoes in locker rooms to prevent athlete\'s foot!',
+    '🚰 Drink clean/filtered water to prevent parasitic infections!',
+    '🏠 Stay home when sick — prevent community spread!'
+  ];
+  const tw=document.createElement('div');
+  tw.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:100;pointer-events:none';
+  tw.innerHTML=`<div class="ticker-wrap"><div class="ticker-inner">${facts.map(f=>`<span style="margin-right:80px;font-size:0.82rem;color:rgba(248,250,252,0.7)">${f}</span>`).join('')}${facts.map(f=>`<span style="margin-right:80px;font-size:0.82rem;color:rgba(248,250,252,0.7)">${f}</span>`).join('')}</div></div>`;
+  document.body.appendChild(tw);
+}
+
+// ─────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────
+addTicker();
+showWelcome();
+
+// Update HUD timer every second
+setInterval(()=>{
+  const el=document.querySelector('.hud-time');
+  if(el && G.globalStartTime){
+    const elapsed=Math.floor((Date.now()-G.globalStartTime)/1000);
+    const m=Math.floor(elapsed/60), s=elapsed%60;
+    el.textContent=`⏱ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+},1000);
+</script>
+</body>
+</html>
